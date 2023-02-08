@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
     // free the memory
     free(particles);
 
+    printf("------------ \n");
     printf("Time taken: %f \n", time_taken);
 
     return 0;
@@ -165,20 +166,12 @@ void symplectic_euler(particle *particles, int N, double delta_t)
 
     double a_x, a_y, r_x, r_y, r, F_, F_x, F_y;
 
-    // set force to zero
-    for (int i = 0; i < N; i++)
-    {
-        particles[i].F_x = 0;
-        particles[i].F_y = 0;
-    }
-
     for (int i = 0; i < N; i++)
     {
         a_x = 0;
         a_y = 0;
         for (int j = i + 1; j < N; j++)
         {
-           
 
             if (i != j)
             {
@@ -192,19 +185,23 @@ void symplectic_euler(particle *particles, int N, double delta_t)
                 F_ = F(particles[i].mass, particles[j].mass, r, G);
                 F_x = F_ * r_x;
                 F_y = F_ * r_y;
+
                 particles[i].F_x += F_x;
                 particles[i].F_y += F_y;
+
                 particles[j].F_x -= F_x;
                 particles[j].F_y -= F_y;
-
             }
         }
-        
+
         // calculate the acceleration
         a_x = particles[i].F_x;
         a_y = particles[i].F_y;
         a_x = a_x / particles[i].mass;
         a_y = a_y / particles[i].mass;
+
+        particles[i].F_x = 0;
+        particles[i].F_y = 0;
 
         // update the velocity
         particles[i].vel_x += a_x * delta_t;
