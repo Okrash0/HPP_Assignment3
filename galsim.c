@@ -15,6 +15,9 @@ typedef struct particle
     double vel_x;
     double vel_y;
     double brightness;
+
+    double F_x;
+    double F_y;
 } particle;
 
 void symplectic_euler(particle *particles, int N, double delta_t);
@@ -133,6 +136,9 @@ int main(int argc, char *argv[])
         fwrite(&particles[i].vel_x, sizeof(double), 1, FILE_ptr);
         fwrite(&particles[i].vel_y, sizeof(double), 1, FILE_ptr);
         fwrite(&particles[i].brightness, sizeof(double), 1, FILE_ptr);
+
+        particles[i].F_x = 0;
+        particles[i].F_y = 0;
     }
 
     // free the memory
@@ -159,12 +165,21 @@ void symplectic_euler(particle *particles, int N, double delta_t)
 
     double a_x, a_y, r_x, r_y, r, F_, F_x, F_y;
 
+    // set force to zero
+    for (int i = 0; i < N; i++)
+    {
+        particles[i].F_x = 0;
+        particles[i].F_y = 0;
+    }
+
     for (int i = 0; i < N; i++)
     {
         a_x = 0;
         a_y = 0;
-        for (int j = 0; j < N; j++)
+        for (int j = i + 1; j < N; j++)
         {
+           
+
             if (i != j)
             {
                 // cakculate the distance between the particles
@@ -177,13 +192,17 @@ void symplectic_euler(particle *particles, int N, double delta_t)
                 F_ = F(particles[i].mass, particles[j].mass, r, G);
                 F_x = F_ * r_x;
                 F_y = F_ * r_y;
+                particles[i].F_x += F_x;
+                particles[i].F_y += F_y;
+                particles[j].F_x -= F_x;
+                particles[j].F_y -= F_y;
 
-                a_x += F_x;
-                a_y += F_y;
             }
         }
         
         // calculate the acceleration
+        a_x = particles[i].F_x;
+        a_y = particles[i].F_y;
         a_x = a_x / particles[i].mass;
         a_y = a_y / particles[i].mass;
 
