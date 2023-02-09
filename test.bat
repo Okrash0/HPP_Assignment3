@@ -1,6 +1,6 @@
 @echo off
 
-gcc -o .\galsim.exe .\galsim.c -O3
+gcc -o .\galsim.exe .\galsim.c -lm
 
 echo running test
 echo N = 10 -----------------

@@ -18,9 +18,9 @@ typedef struct particle
 
     double F_x;
     double F_y;
-} particle;
+} particle_t;
 
-void symplectic_euler(particle *particles, int N, double delta_t);
+void symplectic_euler(particle_t *particles, int N, double delta_t);
 
 int main(int argc, char *argv[])
 {
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     }
 
     // allocate memory for the particles
-    particle *particles = (particle *)malloc(N * sizeof(particle));
+    particle_t *particles = (particle_t *)malloc(N * sizeof(particle_t));
 
     printf("Reading data \n");
     for (int i = 0; i < N; i++)
@@ -164,7 +164,7 @@ double F(double m_i, double m_j, double r, double G)
 }
 
 // wonkers just nu
-void symplectic_euler_opt(particle *particles, int N, double delta_t)
+void symplectic_euler_opt(particle_t *particles, int N, double delta_t)
 {
     double G = 100 / N;
 
@@ -215,7 +215,7 @@ void symplectic_euler_opt(particle *particles, int N, double delta_t)
 }
 
 
-void symplectic_euler(particle *particles, int N, double delta_t)
+void symplectic_euler(particle_t *particles, int N, double delta_t)
 {
     double G = 100 / N;
 
