@@ -5,7 +5,7 @@
 
 #include <pthread.h>
 
-// dT shoud be 0.00001
+// delta_T shoud be 0.00001
 
 typedef struct particle
 {
@@ -21,6 +21,7 @@ typedef struct particle
 } particle_t;
 
 void symplectic_euler(particle_t *particles, int N, double delta_t);
+void symplectic_euler_opt(particle_t *particles, int N, double delta_t);
 
 int main(int argc, char *argv[])
 {
@@ -110,10 +111,10 @@ int main(int argc, char *argv[])
     // run the simulation
     printf("Running simulation \n");
     for (int i = 0; i < nsteps; i++)
-        symplectic_euler(particles, N, delta_t);
+        symplectic_euler_opt(particles, N, delta_t);
 
     t = clock() - t;
-    double time_taken = ((double)t) / CLOCKS_PER_SEC;
+    double time_taken = ((double)t) / (double) CLOCKS_PER_SEC;
 
     // print final positions
     if (graphics == 1)
@@ -165,8 +166,8 @@ double F(double m_i, double m_j, double r, double G)
 
 // wonkers just nu
 void symplectic_euler_opt(particle_t *particles, int N, double delta_t)
-{
-    double G = 100 / N;
+{   //D O double G
+    double G = 100.0 / (double) N;
 
     double a_x, a_y, r_x, r_y, r, F_, F_x, F_y;
 
@@ -178,7 +179,7 @@ void symplectic_euler_opt(particle_t *particles, int N, double delta_t)
 
             if (i != j)
             {
-                // cakculate the distance between the particles
+                // calculate the distance between the particles
                 r_x = particles[i].pos_x - particles[j].pos_x;
                 r_y = particles[i].pos_y - particles[j].pos_y;
 
@@ -214,22 +215,23 @@ void symplectic_euler_opt(particle_t *particles, int N, double delta_t)
     }
 }
 
-
 void symplectic_euler(particle_t *particles, int N, double delta_t)
 {
-    double G = 100 / N;
+    double G = 100.0 / (double) N;
 
     double a_x, a_y, r_x, r_y, r, F_, F_x, F_y;
 
     for (int i = 0; i < N; i++)
     {
+        particles[i].F_x = 0;
+        particles[i].F_y = 0;
 
         for (int j = 0; j < N; j++)
         {
 
             if (i != j)
             {
-                // cakculate the distance between the particles
+                // calculate the distance between the particles
                 r_x = particles[i].pos_x - particles[j].pos_x;
                 r_y = particles[i].pos_y - particles[j].pos_y;
 
@@ -248,9 +250,6 @@ void symplectic_euler(particle_t *particles, int N, double delta_t)
         // calculate the acceleration
         a_x = particles[i].F_x / particles[i].mass;
         a_y = particles[i].F_y / particles[i].mass;
-
-        particles[i].F_x = 0;
-        particles[i].F_y = 0;
 
         // update the velocity
         particles[i].vel_x += a_x * delta_t;
