@@ -20,3 +20,15 @@ echo N = 500 -----------------
 
 echo compparing results with reference
 ./compare_gal_files/comp 500 ./ref_output_data/ellipse_N_00500_after200steps.gal ./result.gal
+
+echo N = 2000 -----------------
+./galsim 2000 ./input_data/ellipse_N_02000.gal 200 0.00001 0
+
+echo compparing results with reference
+./compare_gal_files/comp 2000 ./ref_output_data/ellipse_N_02000_after200steps.gal ./result.gal
+
+echo N = 3000 -----------------
+./galsim 3000 ./input_data/ellipse_N_03000.gal 100 0.00001 0
+
+echo compparing results with reference
+./compare_gal_files/comp 3000 ./ref_output_data/ellipse_N_03000_after100steps.gal ./result.gal

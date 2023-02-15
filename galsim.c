@@ -4,7 +4,7 @@
 #include <time.h>
 
 #include <pthread.h>
-
+const double epsilon = 0.001;
 // delta_T shoud be 0.00001
 
 typedef struct particle
@@ -20,8 +20,7 @@ typedef struct particle
     double F_y;
 } particle_t;
 
-void symplectic_euler(particle_t *particles, int N, double delta_t);
-void symplectic_euler_opt(particle_t *particles, int N, double delta_t);
+void symplectic_euler_opt(particle_t *particles, int N, double delta_t, double G);
 
 int main(int argc, char *argv[])
 {
@@ -35,6 +34,10 @@ int main(int argc, char *argv[])
     graphics is 1 or 0 meaning graphics on/off.
 
     */
+
+    clock_t t;
+    t = clock();
+
     if (argc != 6)
     {
         printf("Not enough arguments \n");
@@ -47,7 +50,7 @@ int main(int argc, char *argv[])
     int nsteps = atoi(argv[3]);
     double delta_t = atof(argv[4]);
     int graphics = atoi(argv[5]);
-    //printf("N: %d \t nsteps: %d \t delta_t: %lf \t", N, nsteps, delta_t);
+    // printf("N: %d \t nsteps: %d \t delta_t: %lf \t", N, nsteps, delta_t);
 
     // check if the arguments are valid
     if (N < 1)
@@ -87,12 +90,13 @@ int main(int argc, char *argv[])
     for (int i = 0; i < N; i++)
     {
         // read the data from the file
-        (void)!fread(&particles[i].pos_x, sizeof(double), 1, FILE_ptr);
-        (void)!fread(&particles[i].pos_y, sizeof(double), 1, FILE_ptr);
-        (void)!fread(&particles[i].mass, sizeof(double), 1, FILE_ptr);
-        (void)!fread(&particles[i].vel_x, sizeof(double), 1, FILE_ptr);
-        (void)!fread(&particles[i].vel_y, sizeof(double), 1, FILE_ptr);
-        (void)!fread(&particles[i].brightness, sizeof(double), 1, FILE_ptr);
+        (void)!fread(&particles[i], sizeof(double) * 6, 1, FILE_ptr); // might be faster
+        // (void)!fread(&particles[i].pos_x, sizeof(double), 1, FILE_ptr);
+        // (void)!fread(&particles[i].pos_y, sizeof(double), 1, FILE_ptr);
+        // (void)!fread(&particles[i].mass, sizeof(double), 1, FILE_ptr);
+        // (void)!fread(&particles[i].vel_x, sizeof(double), 1, FILE_ptr);
+        // (void)!fread(&particles[i].vel_y, sizeof(double), 1, FILE_ptr);
+        // (void)!fread(&particles[i].brightness, sizeof(double), 1, FILE_ptr);
     }
 
     // close the file
@@ -106,16 +110,11 @@ int main(int argc, char *argv[])
             printf("Particle %d: (%f, %f) \n", i, particles[i].pos_x, particles[i].pos_y);
         }
     }
-    clock_t t;
-    t = clock();
 
     // run the simulation
-    printf("Running simulation \n");
+    double G = 100.0 / (double)N;
     for (int i = 0; i < nsteps; i++)
-        symplectic_euler_opt(particles, N, delta_t);
-
-    t = clock() - t;
-    double time_taken = ((double)t) / (double)CLOCKS_PER_SEC;
+        symplectic_euler_opt(particles, N, delta_t, G);
 
     // print final positions
     if (graphics == 1)
@@ -151,6 +150,8 @@ int main(int argc, char *argv[])
     free(particles);
     fclose(FILE_ptr);
 
+    t = clock() - t;
+    double time_taken = ((double)t) / (double)CLOCKS_PER_SEC;
     printf("------------ \n");
     printf("Time taken: %f \n", time_taken);
 
@@ -166,18 +167,18 @@ int main(int argc, char *argv[])
     return (-G) * m_i * m_j / (r_d * r_d * r_d);
 }*/
 
-// wonkers just nu
-void symplectic_euler_opt(particle_t *particles, int N, double delta_t)
+void symplectic_euler_opt(particle_t *particles, int N, double delta_t, double G)
 { // D O double G
-    double G = 100.0 / (double)N;
+   
 
     double a_x, a_y, r_x, r_y, r, F_, F_x, F_y;
     double r_d;
-    double epsilon = 0.001;
-
+    // double epsilon = 0.001; // Made this a global variable
+    
     for (int i = 0; i < N; i++)
     {
-        
+
+
         for (int j = i + 1; j < N; j++)
         {
 
