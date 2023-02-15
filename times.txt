@@ -1,0 +1,36 @@
+------------
+No compiler optimization
+Reading data 
+Running simulation 
+------------ 
+Time taken: 3.039093 
+------------
+Compiler optimization O3
+Reading data 
+Running simulation 
+------------ 
+Time taken: 0.626398 
+------------
+Compiler optimization O2
+Reading data 
+Running simulation 
+------------ 
+Time taken: 1.079284 
+------------
+Compiler optimization O1
+Reading data 
+Running simulation 
+------------ 
+Time taken: 0.816138 
+------------
+Compiler optimization fast
+Reading data 
+Running simulation 
+------------ 
+Time taken: 0.639779 
+------------
+Compiler optimization Ofast and march=native
+Reading data 
+Running simulation 
+------------ 
+Time taken: 0.628351 

@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
     int nsteps = atoi(argv[3]);
     double delta_t = atof(argv[4]);
     int graphics = atoi(argv[5]);
+    //printf("N: %d \t nsteps: %d \t delta_t: %lf \t", N, nsteps, delta_t);
 
     // check if the arguments are valid
     if (N < 1)
@@ -86,12 +87,12 @@ int main(int argc, char *argv[])
     for (int i = 0; i < N; i++)
     {
         // read the data from the file
-        fread(&particles[i].pos_x, sizeof(double), 1, FILE_ptr);
-        fread(&particles[i].pos_y, sizeof(double), 1, FILE_ptr);
-        fread(&particles[i].mass, sizeof(double), 1, FILE_ptr);
-        fread(&particles[i].vel_x, sizeof(double), 1, FILE_ptr);
-        fread(&particles[i].vel_y, sizeof(double), 1, FILE_ptr);
-        fread(&particles[i].brightness, sizeof(double), 1, FILE_ptr);
+        (void)!fread(&particles[i].pos_x, sizeof(double), 1, FILE_ptr);
+        (void)!fread(&particles[i].pos_y, sizeof(double), 1, FILE_ptr);
+        (void)!fread(&particles[i].mass, sizeof(double), 1, FILE_ptr);
+        (void)!fread(&particles[i].vel_x, sizeof(double), 1, FILE_ptr);
+        (void)!fread(&particles[i].vel_y, sizeof(double), 1, FILE_ptr);
+        (void)!fread(&particles[i].brightness, sizeof(double), 1, FILE_ptr);
     }
 
     // close the file
@@ -114,7 +115,7 @@ int main(int argc, char *argv[])
         symplectic_euler_opt(particles, N, delta_t);
 
     t = clock() - t;
-    double time_taken = ((double)t) / (double) CLOCKS_PER_SEC;
+    double time_taken = ((double)t) / (double)CLOCKS_PER_SEC;
 
     // print final positions
     if (graphics == 1)
@@ -148,6 +149,7 @@ int main(int argc, char *argv[])
 
     // free the memory
     free(particles);
+    fclose(FILE_ptr);
 
     printf("------------ \n");
     printf("Time taken: %f \n", time_taken);
@@ -155,47 +157,49 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-double F(double m_i, double m_j, double r, double G)
+/*double F(double m_i, double m_j, double r, double G)
 {
 
     double epsilon = 0.001;
     double r_d = r + epsilon;
 
     return (-G) * m_i * m_j / (r_d * r_d * r_d);
-}
+}*/
 
 // wonkers just nu
 void symplectic_euler_opt(particle_t *particles, int N, double delta_t)
-{   //D O double G
-    double G = 100.0 / (double) N;
+{ // D O double G
+    double G = 100.0 / (double)N;
 
     double a_x, a_y, r_x, r_y, r, F_, F_x, F_y;
+    double r_d;
+    double epsilon = 0.001;
 
     for (int i = 0; i < N; i++)
     {
-
+        
         for (int j = i + 1; j < N; j++)
         {
 
-            if (i != j)
-            {
-                // calculate the distance between the particles
-                r_x = particles[i].pos_x - particles[j].pos_x;
-                r_y = particles[i].pos_y - particles[j].pos_y;
+            // if (i != j)
+            // calculate the distance between the particles
+            r_x = particles[i].pos_x - particles[j].pos_x;
+            r_y = particles[i].pos_y - particles[j].pos_y;
+            r = sqrt(r_x * r_x + r_y * r_y);
 
-                r = sqrt(r_x * r_x + r_y * r_y);
+            // calculate the force
+            r_d = r + epsilon;
 
-                // calculate the force
-                F_ = F(particles[i].mass, particles[j].mass, r, G);
-                F_x = F_ * r_x;
-                F_y = F_ * r_y;
+            F_ = (-G) * particles[i].mass * particles[j].mass / (r_d * r_d * r_d);
+            // F_ = F(particles[i].mass, particles[j].mass, r, G);
+            F_x = F_ * r_x;
+            F_y = F_ * r_y;
 
-                particles[i].F_x += F_x;
-                particles[i].F_y += F_y;
+            particles[i].F_x += F_x;
+            particles[i].F_y += F_y;
 
-                particles[j].F_x -= F_x;
-                particles[j].F_y -= F_y;
-            }
+            particles[j].F_x -= F_x;
+            particles[j].F_y -= F_y;
         }
 
         // calculate the acceleration
@@ -204,52 +208,6 @@ void symplectic_euler_opt(particle_t *particles, int N, double delta_t)
 
         particles[i].F_x = 0;
         particles[i].F_y = 0;
-
-        // update the velocity
-        particles[i].vel_x += a_x * delta_t;
-        particles[i].vel_y += a_y * delta_t;
-
-        // update the position
-        particles[i].pos_x += particles[i].vel_x * delta_t;
-        particles[i].pos_y += particles[i].vel_y * delta_t;
-    }
-}
-
-void symplectic_euler(particle_t *particles, int N, double delta_t)
-{
-    double G = 100.0 / (double) N;
-
-    double a_x, a_y, r_x, r_y, r, F_, F_x, F_y;
-
-    for (int i = 0; i < N; i++)
-    {
-        particles[i].F_x = 0;
-        particles[i].F_y = 0;
-
-        for (int j = 0; j < N; j++)
-        {
-
-            if (i != j)
-            {
-                // calculate the distance between the particles
-                r_x = particles[i].pos_x - particles[j].pos_x;
-                r_y = particles[i].pos_y - particles[j].pos_y;
-
-                r = sqrt(r_x * r_x + r_y * r_y);
-
-                // calculate the force
-                F_ = F(particles[i].mass, particles[j].mass, r, G);
-                F_x = F_ * r_x;
-                F_y = F_ * r_y;
-
-                particles[i].F_x += F_x;
-                particles[i].F_y += F_y;
-            }
-        }
-
-        // calculate the acceleration
-        a_x = particles[i].F_x / particles[i].mass;
-        a_y = particles[i].F_y / particles[i].mass;
 
         // update the velocity
         particles[i].vel_x += a_x * delta_t;

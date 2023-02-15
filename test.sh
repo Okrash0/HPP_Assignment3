@@ -1,3 +1,6 @@
+gcc -o compare_gal_files/comp compare_gal_files/compare_gal_files.c -lm -Ofast
+gcc -o ./galsim ./galsim.c -lm
+
 echo running test
 echo N = 10 -----------------
 ./galsim 10 ./input_data/ellipse_N_00010.gal 200 0.00001 0
