@@ -31,3 +31,8 @@ echo "------------" >> times.txt
 gcc -o ./galsim ./galsim.c -lm -march=native -Ofast
 echo "Compiler optimization Ofast and march=native" >> times.txt
 time ./galsim 1000 ./input_data/ellipse_N_01000.gal 200 0.00001 0 >> times.txt
+
+echo "------------" >> times.txt
+gcc -o ./galsim ./galsim.c -lm -march=native -O3
+echo "Compiler optimization O3 and march=native" >> times.txt
+time ./galsim 1000 ./input_data/ellipse_N_01000.gal 200 0.00001 0 >> times.txt
